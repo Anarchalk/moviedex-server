@@ -24,7 +24,7 @@ app.use(function validateBearerToken(req, res, next) {
 app.get("/movie", function handleMovies(req, res) {
   let results = MOVIEDEX;
   let { genre, country, avg_vote } = req.query;
-
+    //Number=avg_vote Number('2')===1 integer
 
   if (genre) {
     results = results.filter(film =>
