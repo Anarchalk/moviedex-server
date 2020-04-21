@@ -7,7 +7,9 @@ const MOVIEDEX = require("./moviedex.json");
 
 const app = express();
 
-app.use(morgan("dev"));
+const morganSetting = process.env.NODE_ENV === 'production' ? 'tiny' : 'common'
+app.use(morgan(morganSetting))
+
 app.use(cors())
 app.use(helmet());
 
@@ -21,10 +23,20 @@ app.use(function validateBearerToken(req, res, next) {
   next();
 });
 
+app.use((error, req, res, next) => {
+  let response
+  if (process.env.NODE_ENV === 'production') {
+    response = { error: { message: 'server error' }}
+  } else {
+    response = { error }
+  }
+  res.status(500).json(response)
+})
+
 app.get("/movie", function handleMovies(req, res) {
   let results = MOVIEDEX;
   let { genre, country, avg_vote } = req.query;
-    //Number=avg_vote Number('2')===1 integer
+   
 
   if (genre) {
     results = results.filter(film =>
@@ -45,7 +57,7 @@ app.get("/movie", function handleMovies(req, res) {
   res.json(results);
 });
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server is listening at http://localhost:${PORT}`);
 });
